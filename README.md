@@ -109,7 +109,7 @@ This is a **template project** with:
 To run locally:
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/val.git
+git clone https://jeshwanthvarma.github.io/val/.git
 
 # Open in browser
 open index.html
@@ -152,4 +152,4 @@ For issues with the live site or deployment:
 ---
 
 ⭐ **Star this repo if you like it!**  
-🔗 **Share with friends:** https://github.com/yourusername/val
+🔗 **Share with friends:** https://jeshwanthvarma.github.io/val/

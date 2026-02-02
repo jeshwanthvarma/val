@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <title>Will you be my Valentine, Mouni?</title>
 
   <!-- Confetti library -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
   <style>
+    /* CSS Reset and Base Styles */
     :root {
       --bg1: #ffd6e7;
       --bg2: #ffeef6;
@@ -19,40 +20,64 @@
       --text: #333;
       --text-light: #666;
       --option-bg: #f8f9fa;
+      --desktop-width: 720px;
+      --button-zone-height: 160px;
     }
 
     * { 
       box-sizing: border-box;
       margin: 0;
       padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-text-size-adjust: 100%;
+      -moz-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+
+    html {
+      height: 100%;
+      overflow-x: hidden;
     }
 
     body {
       margin: 0;
+      min-height: 100vh;
       min-height: 100svh;
-      display: grid;
-      place-items: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       background: radial-gradient(ellipse at top, var(--bg2), var(--bg1));
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-      overflow-x: hidden;
-      padding: 16px;
       color: var(--text);
       line-height: 1.6;
+      padding: 20px;
+      overflow-x: hidden;
+      width: 100%;
+    }
+
+    /* Prevent zoom on mobile inputs */
+    input, select, textarea, button {
+      font-size: 16px;
     }
 
     /* FULL-SCREEN CONFETTI CANVAS */
     #confettiCanvas {
       position: fixed;
-      inset: 0;
+      top: 0;
+      left: 0;
       width: 100vw;
       height: 100vh;
       pointer-events: none;
       z-index: 9999;
+      display: block;
     }
 
+    /* Main Card - Fixed size on all devices */
     .card {
-      width: min(720px, 94vw);
-      padding: min(40px, 6vw) min(30px, 4vw);
+      width: 720px;
+      max-width: 94vw;
+      max-height: 95vh;
+      padding: 40px 30px;
       background: var(--card);
       backdrop-filter: blur(20px);
       border-radius: 28px;
@@ -60,7 +85,9 @@
       box-shadow: 0 20px 60px var(--shadow);
       border: 1px solid rgba(255, 255, 255, 0.3);
       position: relative;
-      overflow: hidden;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 0 auto;
     }
 
     .card::before {
@@ -74,8 +101,11 @@
       border-radius: 28px 28px 0 0;
     }
 
+    /* Art SVG - Fixed proportions */
     .art {
-      width: min(280px, 75vw);
+      width: 280px;
+      max-width: 75vw;
+      height: auto;
       margin: 0 auto 20px;
       display: block;
       filter: drop-shadow(0 12px 20px rgba(0,0,0,0.1));
@@ -86,8 +116,9 @@
       transform: scale(1.03);
     }
 
+    /* Typography - Fixed sizes */
     h1 {
-      font-size: clamp(28px, 5vw, 48px);
+      font-size: 48px;
       margin: 0 0 24px;
       color: #222;
       font-weight: 700;
@@ -103,52 +134,64 @@
       text-underline-offset: 4px;
     }
 
+    /* Button Zone - Fixed container with overflow protection */
     .button-zone {
       position: relative;
-      width: min(520px, 100%);
+      width: 520px;
+      max-width: 100%;
       height: 160px;
       margin: 0 auto 10px;
       touch-action: none;
+      overflow: visible;
     }
 
+    /* Buttons - Fixed positioning with viewport protection */
     button {
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
       padding: 18px 32px;
-      font-size: clamp(16px, 3vw, 20px);
+      font-size: 20px;
       font-weight: 700;
       border-radius: 50px;
       border: none;
       cursor: pointer;
       box-shadow: 0 12px 30px rgba(0,0,0,0.15);
       user-select: none;
-      -webkit-tap-highlight-color: transparent;
       transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       min-width: 120px;
       letter-spacing: 0.5px;
       will-change: transform, filter;
       filter: brightness(1);
       z-index: 10;
+      -webkit-appearance: none;
+      appearance: none;
+      /* Ensure buttons don't go outside viewport */
+      max-width: 90vw;
+      box-sizing: border-box;
     }
 
     button:active {
       transform: translateY(-50%) scale(0.96);
     }
 
+    /* Yes button with mobile-safe positioning */
     #yesBtn {
       left: 18%;
       background: linear-gradient(135deg, var(--yes), var(--yesHover));
       color: #fff;
       z-index: 12;
+      /* Mobile protection */
+      transform-origin: center center;
     }
     
-    #yesBtn:hover {
+    #yesBtn:hover, #yesBtn:active {
       background: linear-gradient(135deg, var(--yesHover), #ff0055);
       filter: brightness(1.1);
       box-shadow: 0 16px 40px rgba(255, 59, 122, 0.3);
     }
 
+    /* No button with mobile-safe positioning */
     #noBtn {
       left: 62%;
       background: linear-gradient(135deg, #e5e7eb, #d1d5db);
@@ -156,16 +199,18 @@
       z-index: 11;
     }
 
-    #noBtn:hover {
+    #noBtn:hover, #noBtn:active {
       background: linear-gradient(135deg, #d1d5db, #9ca3af);
     }
 
+    /* Hint */
     .hint {
       margin: 12px auto 0;
       font-size: 14px;
       opacity: 0.8;
       color: var(--text-light);
-      max-width: 300px;
+      width: 300px;
+      max-width: 100%;
       font-style: italic;
       padding: 8px 16px;
       background: rgba(255, 255, 255, 0.5);
@@ -185,9 +230,11 @@
       font-weight: 600;
       font-style: italic;
       max-width: 400px;
+      width: 100%;
       animation: bounce 0.5s ease;
     }
 
+    /* Result Section */
     .result {
       display: none;
       margin-top: 30px;
@@ -195,14 +242,14 @@
     }
 
     .result h2 {
-      font-size: clamp(32px, 5vw, 52px);
+      font-size: 52px;
       margin: 20px 0;
       color: var(--yes);
       font-weight: 800;
     }
 
     .result p {
-      font-size: clamp(16px, 3vw, 20px);
+      font-size: 20px;
       margin: 20px 0;
       color: var(--text-light);
       max-width: 500px;
@@ -264,10 +311,9 @@
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 15px;
-      margin: 30px 0 40px;
+      margin: 30px auto 40px;
       max-width: 500px;
-      margin-left: auto;
-      margin-right: auto;
+      width: 100%;
     }
 
     .date-option {
@@ -280,12 +326,11 @@
       text-align: center;
       position: relative;
       overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .date-option:hover {
-      transform: translateY(-3px);
-      border-color: var(--yes);
-      box-shadow: 0 8px 20px rgba(255, 59, 122, 0.15);
+    .date-option:active {
+      transform: scale(0.98);
     }
 
     .date-option.selected {
@@ -330,7 +375,7 @@
       font-style: italic;
     }
 
-    /* Calendar Section - FIXED at bottom */
+    /* Calendar Section */
     .calendar-section {
       margin-top: 50px;
       padding-top: 30px;
@@ -356,19 +401,19 @@
       box-shadow: 0 10px 25px rgba(66, 133, 244, 0.3);
       transition: all 0.3s ease;
       text-decoration: none;
-      width: min(350px, 90%);
-      position: static !important;
-      transform: none !important;
-    }
-
-    .calendar-btn:hover {
-      transform: translateY(-3px) !important;
-      box-shadow: 0 15px 35px rgba(66, 133, 244, 0.4);
-      background: linear-gradient(135deg, #34a853, #4285f4);
+      width: 350px;
+      max-width: 100%;
+      -webkit-appearance: none;
+      appearance: none;
     }
 
     .calendar-btn:active {
-      transform: translateY(-1px) !important;
+      transform: scale(0.98);
+    }
+
+    .calendar-btn:hover {
+      background: linear-gradient(135deg, #34a853, #4285f4);
+      box-shadow: 0 15px 35px rgba(66, 133, 244, 0.4);
     }
 
     .calendar-btn svg {
@@ -382,43 +427,84 @@
       cursor: default;
     }
 
-    .calendar-btn.added:hover {
-      transform: none !important;
+    .calendar-btn.added:active {
+      transform: none;
     }
 
-    /* Responsive adjustments */
+    /* Mobile-specific fixes with button viewport protection */
     @media (max-width: 768px) {
+      body {
+        padding: 10px;
+        display: block;
+        min-height: 100vh;
+        overflow-y: auto;
+      }
+      
       .card {
+        width: 100%;
+        max-width: 720px;
+        max-height: none;
+        margin: 0 auto;
         padding: 30px 20px;
         border-radius: 24px;
+        transform-origin: center top;
+        overflow-x: hidden;
+      }
+      
+      /* Force exact desktop layout */
+      h1 {
+        font-size: 36px;
+        margin-bottom: 20px;
+      }
+      
+      .art {
+        width: 250px;
       }
       
       .button-zone {
-        height: 140px;
+        width: 100%;
+        max-width: 520px;
+        height: 160px;
+        margin: 0 auto 10px;
+        position: relative;
+        overflow: visible;
       }
       
-      button {
-        padding: 16px 24px;
-        min-width: 100px;
-      }
-      
+      /* Mobile-safe button positioning */
       #yesBtn {
-        left: 10%;
-        z-index: 12;
+        left: 18%;
+        /* Mobile scale protection */
+        max-width: 50vw;
+        transform-origin: center center;
+        /* Ensure it stays in viewport when scaled */
+        transform: translateY(-50%) scale(1);
+        transition: all 0.3s ease;
       }
       
       #noBtn {
-        left: 58%;
-        z-index: 11;
+        left: 62%;
+        max-width: 40vw;
+        transform-origin: center center;
       }
       
-      .hint {
-        font-size: 13px;
-        padding: 6px 12px;
+      button {
+        padding: 16px 28px;
+        font-size: 18px;
+        min-width: 110px;
+        /* Mobile touch area */
+        min-height: 60px;
+      }
+      
+      .result h2 {
+        font-size: 36px;
+      }
+      
+      .result p {
+        font-size: 18px;
       }
       
       .meme-gallery {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
         gap: 15px;
       }
       
@@ -427,63 +513,145 @@
       }
       
       .date-options {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
         gap: 12px;
-      }
-      
-      .calendar-btn {
-        width: 100%;
-        padding: 14px 24px;
-        font-size: 16px;
       }
     }
 
     @media (max-width: 480px) {
+      .card {
+        padding: 25px 15px;
+        border-radius: 20px;
+      }
+      
       h1 {
-        font-size: 24px;
-        margin-bottom: 20px;
+        font-size: 28px;
+        line-height: 1.3;
+      }
+      
+      .art {
+        width: 200px;
       }
       
       .button-zone {
-        height: 130px;
+        height: 150px;
       }
       
       button {
-        padding: 14px 20px;
+        padding: 14px 22px;
         font-size: 16px;
-        min-width: 90px;
+        min-width: 100px;
+        min-height: 55px;
       }
       
+      /* Adjusted positioning for very small screens */
       #yesBtn {
-        left: 5%;
+        left: 10%;
+        max-width: 45vw;
       }
       
       #noBtn {
         left: 55%;
+        max-width: 35vw;
+      }
+      
+      .result h2 {
+        font-size: 28px;
+      }
+      
+      .result p {
+        font-size: 16px;
+      }
+      
+      .meme-gallery {
+        grid-template-columns: 1fr;
+        gap: 12px;
       }
       
       .meme-img {
         height: 160px;
       }
       
-      .meme-caption {
-        padding: 12px;
-        font-size: 14px;
+      .date-options {
+        grid-template-columns: 1fr;
       }
       
-      .date-option {
-        padding: 15px 12px;
-      }
-      
-      .date-day {
-        font-size: 18px;
-      }
-      
-      .date-time {
-        font-size: 15px;
+      .calendar-btn {
+        width: 100%;
+        padding: 14px 20px;
+        font-size: 16px;
       }
     }
 
+    /* Very small screens */
+    @media (max-width: 360px) {
+      h1 {
+        font-size: 24px;
+      }
+      
+      .art {
+        width: 180px;
+      }
+      
+      button {
+        padding: 12px 18px;
+        font-size: 14px;
+        min-width: 90px;
+        min-height: 50px;
+      }
+      
+      #yesBtn {
+        left: 8%;
+        max-width: 42vw;
+        font-size: 13px;
+      }
+      
+      #noBtn {
+        left: 52%;
+        max-width: 38vw;
+        font-size: 13px;
+      }
+    }
+
+    /* Landscape mode */
+    @media (max-height: 600px) and (orientation: landscape) {
+      body {
+        padding: 5px;
+        display: flex;
+        align-items: flex-start;
+      }
+      
+      .card {
+        max-height: 95vh;
+        overflow-y: auto;
+        margin: 10px auto;
+        padding: 20px 15px;
+      }
+      
+      .art {
+        width: 180px;
+        margin-bottom: 15px;
+      }
+      
+      h1 {
+        font-size: 28px;
+        margin-bottom: 15px;
+      }
+      
+      .button-zone {
+        height: 120px;
+      }
+      
+      #yesBtn {
+        left: 15%;
+      }
+      
+      #noBtn {
+        left: 60%;
+      }
+    }
+
+    /* Animations */
     @keyframes pop {
       0% { 
         transform: scale(0.8); 
@@ -572,12 +740,12 @@
     <h1><span class="name">Mouni</span>, will you be my Valentine?</h1>
 
     <section class="button-zone" id="zone">
-      <button id="yesBtn">Yes! 💖</button>
+      <button id="yesBtn">Yes! 🥰✨</button>
       <button id="noBtn">No 😢</button>
     </section>
 
     <!-- HINT -->
-    <div class="hint" id="hint">The "No" button is trying to escape... can you catch it? 😏</div>
+    <div class="hint" id="hint">The "No" button is trying to escape... can you catch it? 😉</div>
 
     <!-- No Button Click Message -->
     <div class="no-click-message" id="noMessage">
@@ -598,6 +766,7 @@
               src="https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif" 
               alt="Blushing puppy with hearts"
               class="meme-img"
+              loading="lazy"
             />
             <div class="meme-caption">When you smile and my heart does this 🐶💕</div>
           </div>
@@ -607,6 +776,7 @@
               src="https://media.giphy.com/media/26tknCqiJrBQG6DrC/giphy.gif" 
               alt="Cute cat covering face shyly"
               class="meme-img"
+              loading="lazy"
             />
             <div class="meme-caption">Me trying to act cool when I see you 😸✨</div>
           </div>
@@ -616,6 +786,7 @@
               src="https://media.giphy.com/media/l4KhS0BOFBh2jztI4/giphy.gif" 
               alt="Happy dancing hamster"
               class="meme-img"
+              loading="lazy"
             />
             <div class="meme-caption">My reaction when you said yes! 🐹💃</div>
           </div>
@@ -625,6 +796,7 @@
               src="https://media.giphy.com/media/3o7abAHdYvZdBNnGZq/giphy.gif" 
               alt="Blushing cartoon with hearts"
               class="meme-img"
+              loading="lazy"
             />
             <div class="meme-caption">How you make me feel everyday, Mouni 😊❤️</div>
           </div>
@@ -634,6 +806,7 @@
               src="https://media.giphy.com/media/11sBLVxNs7v6WA/giphy.gif" 
               alt="Cute puppy with big eyes"
               class="meme-img"
+              loading="lazy"
             />
             <div class="meme-caption">Me waiting for your reply 🐶👀</div>
           </div>
@@ -643,6 +816,7 @@
               src="https://media.giphy.com/media/5GoVLqeAOo6PK/giphy.gif" 
               alt="Excited jumping kitten"
               class="meme-img"
+              loading="lazy"
             />
             <div class="meme-caption">How excited I am for our date! 😺🎉</div>
           </div>
@@ -699,6 +873,7 @@
   </main>
 
   <script>
+    // Optimized mobile touch handling
     const zone = document.getElementById("zone");
     const yesBtn = document.getElementById("yesBtn");
     const noBtn = document.getElementById("noBtn");
@@ -736,7 +911,7 @@
 
     resizeConfettiCanvas();
     window.addEventListener("resize", resizeConfettiCanvas);
-    window.addEventListener("orientationchange", () => setTimeout(resizeConfettiCanvas, 150));
+    window.addEventListener("orientationchange", resizeConfettiCanvas);
 
     const confettiInstance = confetti.create(confettiCanvas, {
       resize: false,
@@ -770,11 +945,38 @@
       }, 400);
     }
 
-    /* ---------- YES BUTTON GROWS ---------- */
+    /* ---------- YES BUTTON GROWS - MOBILE SAFE ---------- */
     function growYes(extra = 0.3) {
-      yesScale = Math.min(2.8, yesScale + extra);
+      const isMobile = window.innerWidth < 768;
+      const maxScale = isMobile ? 1.8 : 2.8; // Lower max scale on mobile
+      
+      yesScale = Math.min(maxScale, yesScale + extra);
+      
+      // Calculate button dimensions
+      const buttonRect = yesBtn.getBoundingClientRect();
+      const zoneRect = zone.getBoundingClientRect();
+      
+      // Check if button will go outside viewport on mobile
+      if (isMobile) {
+        const scaledWidth = buttonRect.width * yesScale;
+        const scaledLeft = (zoneRect.width * 0.18) - (scaledWidth / 2);
+        
+        // If button goes too far left or right, adjust scale
+        if (scaledLeft < 0 || scaledLeft + scaledWidth > zoneRect.width) {
+          yesScale = Math.min(yesScale, 1.5); // Further limit scale
+        }
+      }
+      
       yesBtn.style.transform = `translateY(-50%) scale(${yesScale})`;
       yesBtn.style.zIndex = '12';
+      
+      // Ensure button stays in viewport
+      requestAnimationFrame(() => {
+        const finalRect = yesBtn.getBoundingClientRect();
+        if (finalRect.left < 0) {
+          yesBtn.style.left = `${Math.abs(finalRect.left) + 10}px`;
+        }
+      });
     }
 
     /* ---------- NO BUTTON CLICK HANDLER ---------- */
@@ -786,31 +988,35 @@
       noMessage.textContent = noMessages[messageIndex];
       noMessage.style.display = 'block';
       
-      // Make Yes button bigger
-      growYes(0.5);
+      // Make Yes button bigger (but safe for mobile)
+      growYes(0.4);
       
       // Hide message after 3 seconds
       setTimeout(() => {
         noMessage.style.display = 'none';
       }, 3000);
       
-      // Make No button run away even more
+      // Make No button run away
       const z = zone.getBoundingClientRect();
       const b = noBtn.getBoundingClientRect();
       
-      // Move to random position
-      const newLeft = Math.random() * (z.width - b.width);
-      const newTop = Math.random() * (z.height - b.height);
+      // Calculate safe boundaries
+      const maxLeft = z.width - b.width - 10;
+      const maxTop = z.height - b.height - 10;
+      
+      // Move to random position within safe boundaries
+      const newLeft = Math.max(10, Math.random() * maxLeft);
+      const newTop = Math.max(10, Math.random() * maxTop);
       
       noBtn.style.left = newLeft + "px";
       noBtn.style.top = newTop + "px";
-      noBtn.style.transform = "none";
+      noBtn.style.transform = "translateY(-50%)";
       
       // Prevent default behavior
       return false;
     }
 
-    /* ---------- NO BUTTON RUNS AWAY ---------- */
+    /* ---------- NO BUTTON RUNS AWAY - MOBILE SAFE ---------- */
     function clamp(n, min, max) {
       return Math.max(min, Math.min(max, n));
     }
@@ -825,19 +1031,24 @@
       dx /= mag;
       dy /= mag;
       
-      let newLeft = (b.left - z.left) + dx * 220;
-      let newTop = (b.top - z.top) + dy * 220;
+      // Reduced movement on mobile
+      const moveDistance = window.innerWidth < 768 ? 150 : 220;
       
-      newLeft = clamp(newLeft, -20, z.width - b.width + 20);
-      newTop = clamp(newTop, -20, z.height - b.height + 20);
+      let newLeft = (b.left - z.left) + dx * moveDistance;
+      let newTop = (b.top - z.top) + dy * moveDistance;
+      
+      // Keep button within zone with padding
+      const padding = 15;
+      newLeft = clamp(newLeft, padding, z.width - b.width - padding);
+      newTop = clamp(newTop, padding, z.height - b.height - padding);
       
       noBtn.style.left = newLeft + "px";
       noBtn.style.top = newTop + "px";
-      noBtn.style.transform = "none";
+      noBtn.style.transform = "translateY(-50%)";
       noBtn.style.zIndex = '11';
       
       // Grow Yes button a little each time mouse gets close
-      growYes(0.1);
+      growYes(0.08);
       
       // Prevent overlap
       const yesRect = yesBtn.getBoundingClientRect();
@@ -849,18 +1060,20 @@
                        noRect.top > yesRect.bottom);
       
       if (overlap) {
-        const pushX = noRect.left < yesRect.left ? -40 : 40;
-        const pushY = noRect.top < yesRect.top ? -40 : 40;
+        const pushDistance = window.innerWidth < 768 ? 30 : 40;
+        const pushX = noRect.left < yesRect.left ? -pushDistance : pushDistance;
+        const pushY = noRect.top < yesRect.top ? -pushDistance : pushDistance;
         
-        newLeft = clamp(newLeft + pushX, 0, z.width - b.width);
-        newTop = clamp(newTop + pushY, 0, z.height - b.height);
+        newLeft = clamp(newLeft + pushX, padding, z.width - b.width - padding);
+        newTop = clamp(newTop + pushY, padding, z.height - b.height - padding);
         
         noBtn.style.left = newLeft + "px";
         noBtn.style.top = newTop + "px";
       }
       
-      if (navigator.vibrate) {
-        navigator.vibrate(20);
+      // Gentle vibration on mobile
+      if (navigator.vibrate && window.innerWidth < 768) {
+        navigator.vibrate(8);
       }
     }
 
@@ -876,19 +1089,33 @@
         (b.top + b.height / 2) - clientY
       );
       
-      if (d < 200) {
+      // Larger trigger distance on mobile
+      const triggerDistance = window.innerWidth < 768 ? 150 : 200;
+      
+      if (d < triggerDistance) {
         moveNo(clientX, clientY);
       }
     }
 
+    // Touch and mouse events
     zone.addEventListener("pointermove", handleMove);
     zone.addEventListener("touchmove", (e) => {
       e.preventDefault();
       handleMove(e);
     }, { passive: false });
 
+    zone.addEventListener("mousemove", handleMove);
+
     // Add click event to No button
     noBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      handleNoClick();
+      return false;
+    });
+
+    // Touch event for mobile
+    noBtn.addEventListener("touchend", (e) => {
       e.preventDefault();
       e.stopPropagation();
       handleNoClick();
@@ -911,14 +1138,17 @@
           </svg>
           Add "${this.querySelector('.date-time').textContent}" to Calendar
         `;
-        
-        calendarBtn.style.position = 'static';
-        calendarBtn.style.transform = 'none';
+      });
+      
+      // Add touch support
+      option.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        this.click();
       });
     });
 
     /* ---------- YES CLICK ---------- */
-    yesBtn.addEventListener("click", () => {
+    function handleYesClick() {
       zone.style.display = "none";
       hint.style.display = "none";
       noMessage.style.display = "none";
@@ -928,10 +1158,10 @@
       
       // Auto-select first date option
       setTimeout(() => {
-        dateOptions[0].click();
+        if (dateOptions[0]) dateOptions[0].click();
       }, 500);
       
-      // Scroll to show memes first
+      // Scroll to show memes
       setTimeout(() => {
         memeGallery.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 800);
@@ -939,12 +1169,20 @@
       // Add random meme animation
       setInterval(() => {
         const memes = document.querySelectorAll('.meme-item');
-        const randomMeme = memes[Math.floor(Math.random() * memes.length)];
-        randomMeme.style.transform = 'scale(1.05)';
-        setTimeout(() => {
-          randomMeme.style.transform = 'scale(1)';
-        }, 300);
+        if (memes.length > 0) {
+          const randomMeme = memes[Math.floor(Math.random() * memes.length)];
+          randomMeme.style.transform = 'scale(1.05)';
+          setTimeout(() => {
+            randomMeme.style.transform = 'scale(1)';
+          }, 300);
+        }
       }, 3000);
+    }
+
+    yesBtn.addEventListener("click", handleYesClick);
+    yesBtn.addEventListener("touchend", (e) => {
+      e.preventDefault();
+      handleYesClick();
     });
 
     /* ---------- GOOGLE CALENDAR INTEGRATION ---------- */
@@ -997,21 +1235,65 @@
     }
 
     calendarBtn.addEventListener('click', addToCalendar);
+    calendarBtn.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      addToCalendar();
+    });
 
-    // Initialize
+    // Initialize with mobile-safe setup
     document.addEventListener('DOMContentLoaded', function() {
-      if ('ontouchstart' in window) {
-        document.body.classList.add('touch-device');
-      }
+      // Set initial button positions
+      const zoneWidth = zone.offsetWidth;
+      const yesBtnWidth = yesBtn.offsetWidth;
+      const noBtnWidth = noBtn.offsetWidth;
       
-      // Ensure calendar button is at bottom
-      calendarBtn.style.position = 'static';
-      calendarBtn.style.transform = 'none';
+      // Calculate safe positions
+      const yesLeft = Math.max(10, zoneWidth * 0.18 - yesBtnWidth / 2);
+      const noLeft = Math.min(zoneWidth - noBtnWidth - 10, zoneWidth * 0.62 - noBtnWidth / 2);
+      
+      yesBtn.style.left = `${yesLeft}px`;
+      noBtn.style.left = `${noLeft}px`;
+      
+      // Set initial transform
+      yesBtn.style.transform = `translateY(-50%) scale(${yesScale})`;
+      noBtn.style.transform = `translateY(-50%)`;
+      
+      // Ensure proper z-index
       yesBtn.style.zIndex = '12';
       noBtn.style.zIndex = '11';
       
-      // Set initial button sizes
-      yesBtn.style.transform = `translateY(-50%) scale(${yesScale})`;
+      // Mobile-specific setup
+      if (window.innerWidth < 768) {
+        // Add extra padding for mobile
+        yesBtn.style.padding = "16px 24px";
+        noBtn.style.padding = "16px 24px";
+        
+        // Set max width for buttons
+        yesBtn.style.maxWidth = "45vw";
+        noBtn.style.maxWidth = "40vw";
+      }
+    });
+
+    // Recalculate on resize with mobile protection
+    window.addEventListener('resize', function() {
+      if (zone.style.display !== 'none') {
+        const zoneWidth = zone.offsetWidth;
+        const yesBtnWidth = yesBtn.offsetWidth;
+        const noBtnWidth = noBtn.offsetWidth;
+        
+        // Calculate safe positions with boundaries
+        const yesLeft = Math.max(10, zoneWidth * 0.18 - yesBtnWidth / 2);
+        const noLeft = Math.min(zoneWidth - noBtnWidth - 10, zoneWidth * 0.62 - noBtnWidth / 2);
+        
+        yesBtn.style.left = `${yesLeft}px`;
+        noBtn.style.left = `${noLeft}px`;
+        
+        // Adjust scale if needed on mobile
+        if (window.innerWidth < 768 && yesScale > 1.5) {
+          yesScale = 1.5;
+          yesBtn.style.transform = `translateY(-50%) scale(${yesScale})`;
+        }
+      }
     });
   </script>
 </body>
